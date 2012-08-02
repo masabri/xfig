@@ -77,11 +77,13 @@ read_epsf_pdf(FILE *file, int filetype, F_pic *pic, Boolean pdf_flag)
 
 	/* look for /MediaBox for pdf file */
 	if (pdf_flag) {
-	    if (!strncmp(buf, "/MediaBox", 8)) {	/* look for the MediaBox spec */
+	  char *s;
+	  for(s=buf; (s=strchr(s,'/')); s++) {
+	    if (!strncmp(s, "/MediaBox", 8)) {	/* look for the MediaBox spec */
 		char       *c;
 
-		c = strchr(buf, '[') + 1;
-		if (c && sscanf(c, "%d %d %d %d", &llx, &lly, &urx, &ury) < 4) {
+		c = strchr(s, '[');
+		if (c && sscanf(c+1, "%d %d %d %d", &llx, &lly, &urx, &ury) < 4) {
 		    llx = lly = 0;
 		    urx = paper_sizes[0].width * 72 / PIX_PER_INCH;
 		    ury = paper_sizes[0].height * 72 / PIX_PER_INCH;
@@ -89,7 +91,9 @@ read_epsf_pdf(FILE *file, int filetype, F_pic *pic, Boolean pdf_flag)
 			     appres.INCHES ? "Letter" : "A4");
 		    app_flush();
 		}
+		break;
 	    }
+	  }
 	    /* look for bounding box */
 	} else if (!nested && !strncmp(buf, "%%BoundingBox:", 14)) {
 	    if (!strstr(buf, "(atend)")) {	/* make sure doesn't say (atend) */
@@ -252,12 +256,13 @@ bitmap_from_gs(file, filetype, pic, urx, llx, ury, lly, pdf_flag)
 {
     char        buf[300];
     FILE       *tmpfp, *pixfile, *gsfile;
-    char       *psnam, *driver;
+    char       *driver;
     int         status, wid, ht, nbitmap, fd;
     char        tmpfile[PATH_MAX],
 		pixnam[PATH_MAX],
 		errnam[PATH_MAX],
-		gscom[2 * PATH_MAX];
+		gscom[2 * PATH_MAX],
+		psnam[PATH_MAX];
 
     wid = urx - llx;
     ht = ury - lly;
@@ -307,19 +312,14 @@ bitmap_from_gs(file, filetype, pic, urx, llx, ury, lly, pdf_flag)
 	/* for color, use pcx */
 	driver = "pcx256";
     }
-    /* avoid absolute paths (for Cygwin with gswin32) by changing directory */
-    if (tmpfile[0] == '/') {
-	psnam = strrchr(tmpfile, '/');
-	*psnam = 0;
-	sprintf(gscom, "cd \"%s/\";", tmpfile);
-	*psnam++ = '/';		/* Restore name for unlink() below */
-    } else {
-	psnam = tmpfile;
-	gscom[0] = '\0';
+    /* Canonicalize the eps file filename, needed to "defeat" -dSAFER */
+    if (!realpath(tmpfile, psnam)) {
+	file_msg("Cannot canonicalize %s: %s\n", tmpfile, strerror(errno));
+	return False;
     }
-    sprintf(&gscom[strlen(gscom)],
-	    "%s -r72x72 -dSAFER -sDEVICE=%s -g%dx%d -sOutputFile=%s -q - > %s 2>&1",
-	    appres.ghostscript, driver, wid, ht, pixnam, errnam);
+    sprintf(gscom,
+	    "%s -r72x72 -sDEVICE=%s -g%dx%d -sOutputFile=%s -dDELAYSAFER -c '<< /PermitFileReading [ (%s)] >> setuserparams .locksafe' -dSAFER -q - > %s 2>&1",
+	    appres.ghostscript, driver, wid, ht, pixnam, psnam, errnam);
     if (appres.DEBUG)
 	fprintf(stderr,"calling: %s\n",gscom);
     if ((gsfile = popen(gscom, "w")) == 0) {

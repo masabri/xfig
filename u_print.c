@@ -202,14 +202,22 @@ int print_to_file(char *file, char *lang, float mag, int xoff, int yoff, char *b
     char	    tmp_fig_file[PATH_MAX];
     char	   *outfile, *name, *real_lang;
     char	   *suf;
+    int     fd;
 
     /* if file exists, ask if ok */
     if (!ok_to_write(file, "EXPORT"))
 	return (1);
 
-    sprintf(tmp_fig_file, "%s/%s%06d", TMPDIR, "xfig-fig", getpid());
+    snprintf(tmp_fig_file, sizeof(tmp_fig_file), "%s/xfig-fig.XXXXXX", TMPDIR);
     /* write the fig objects to a temporary file */
     warnexist = False;
+
+    if ((fd = mkstemp(tmp_fig_file)) == -1) {
+       file_msg("Can't open temp file %s: %s\n", tmp_fig_file, strerror(errno));
+       return;
+    }
+    close(fd);
+
     init_write_tmpfile();
     if (write_file(tmp_fig_file, False)) {
       end_write_tmpfile();

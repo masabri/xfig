@@ -438,7 +438,7 @@ void redisplay_curobj(void)
       }
     } else {
 	/* editing an object, just refresh it as is */
-	(*canvas_ref_proc)(cur_x, cur_y);
+	if (canvas_ref_proc) (*canvas_ref_proc)(cur_x, cur_y);
     }
 }
 

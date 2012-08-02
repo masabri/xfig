@@ -471,7 +471,7 @@ read_1_3_textobject(FILE *fp)
     F_text	   *t;
     int		    n;
     int		    dum;
-    char	    buf[128];
+    char	    buf[512];
     PR_SIZE	    tx_dim;
 
     if ((t = create_text()) == NULL)
@@ -485,22 +485,34 @@ read_1_3_textobject(FILE *fp)
     t->pen_style = -1;
     t->angle = 0.0;
     t->next = NULL;
-    /* ascent and length will be recalculated later */
-    n = fscanf(fp, " %d %d %d %d %d %d %d %[^\n]",
-		&t->font, &dum, &dum, &t->ascent, &t->length,
-		&t->base_x, &t->base_y, buf);
-    if (n != 8) {
+    if (!fgets(buf, sizeof(buf), fp)) {
 	file_msg("Incomplete text data");
 	free((char *) t);
 	return (NULL);
     }
-    if ((t->cstring = new_string(strlen(buf))) == NULL) {
+
+    /* Note using strlen(buf) here will waste a few bytes, as the
+       various text attributes are counted into this length too. */
+    if ((t->cstring = new_string(strlen(buf))) == NULL)
+        return (NULL);
+
+    /* ascent and length will be recalculated later */
+    n = sscanf(buf, " %d %d %d %d %d %d %d %[^\n]",
+		&t->font, &dum, &dum, &t->ascent, &t->length,
+		&t->base_x, &t->base_y, t->cstring);
+    if (n != 8) {
+	file_msg("Incomplete text data");
+	free(t->cstring);
+	free((char *) t);
+	return (NULL);
+    }
+
+    if (!strlen(t->cstring)) {
+	free(t->cstring);
 	free((char *) t);
 	file_msg("Empty text string at line %d.", line_no);
 	return (NULL);
     }
-    /* put string in structure */
-    strcpy(t->cstring, buf);
 
     /* get the font struct */
     t->zoom = zoomscale;
