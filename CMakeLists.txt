@@ -13,6 +13,15 @@ else(XFIG_IS_SUBBUILD)
 	set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake;${CMAKE_MODULE_PATH}")
 endif(XFIG_IS_SUBBUILD)
 
+if(NOT M_LIBRARY)
+	include(CheckLibraryExists)
+	include(ResolveCompilerPaths)
+	CHECK_LIBRARY_EXISTS(m cos "" HAVE_M_LIBRARY)
+	if(HAVE_M_LIBRARY)
+		RESOLVE_LIBRARIES(M_LIBRARY "-lm")
+	endif(HAVE_M_LIBRARY)
+endif(NOT M_LIBRARY)
+
 find_package(X11)
 if(X11_Xpm_LIB)
 	add_definitions(-DUSE_XPM)
@@ -26,11 +35,14 @@ if(NOT "${XAW3D_LIB}" MATCHES "NOTFOUND")
 	add_definitions(-DXAW_INTERNATIONALIZATION)
 endif(NOT "${XAW3D_LIB}" MATCHES "NOTFOUND")
 
+find_library(XMU_LIB NAMES Xmu xmu)
+
 find_package(JPEG)
 if(JPEG_LIBRARIES)
 	add_definitions(-DUSE_JPEG)
 endif(JPEG_LIBRARIES)
 
+find_package(ZLIB)
 find_package(PNG)
 
 include_directories(
@@ -57,10 +69,22 @@ add_definitions(-DCOMP_LED=3)
 add_definitions(-DFUNCPROTO=15)
 add_definitions(-DNARROWPROTO)
 add_definitions(-DNEWARROWTYPES)
+add_definitions(-DCACHE_BITMAPS)
+add_definitions(-DCACHE_SIZE_LIMIT=300)
 add_definitions(-DUSE_INLINE)
 add_definitions(-DI18N)
+add_definitions(-DSETLOCALE)
+add_definitions(-Dlinux)
+add_definitions(-D__amd64__)
+add_definitions(-D_POSIX_C_SOURCE=199309L)
+add_definitions(-D_POSIX_SOURCE)
+add_definitions(-D_XOPEN_SOURCE)
+add_definitions(-D_LARGEFILE_SOURCE)
+add_definitions(-D_FILE_OFFSET_BITS=64)
+add_definitions(-D_BSD_SOURCE)
+add_definitions(-D_SVID_SOURCE)
 
-set(CMAKE_C_FLAGS "-g")
+set(CMAKE_C_FLAGS "-g -O2")
 
 set(XFIG_SRCS
 	d_arcbox.c
@@ -180,5 +204,4 @@ set(XFIG_SRCS
   )
 
 add_executable(xfig ${XFIG_SRCS})
-target_link_libraries(xfig ${JPEG_LIBRARIES} ${PNG_LIBRARIES} ${X11_X11_LIB}
-	${X11_Xt_LIB} ${X11_Xpm_LIB} ${X11_Xi_LIB} ${XAW3D_LIB})
+target_link_libraries(xfig ${JPEG_LIBRARIES} ${X11_Xpm_LIB} ${PNG_LIBRARIES} ${ZLIB_LIBRARIES} ${X11_Xi_LIB} ${XAW3D_LIB} ${XMU_LIB}  ${X11_Xt_LIB} ${X11_SM_LIB} ${X11_ICE_LIB} ${X11_X11_LIB} ${M_LIBRARY})
