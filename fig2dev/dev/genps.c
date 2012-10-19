@@ -45,7 +45,7 @@
 
 /* for the xpm package */
 #ifdef USE_XPM
-#include <xpm.h>
+#include <X11/xpm.h>
 int	XpmReadFileToXpmImage();
 #endif /* USE_XPM */
 

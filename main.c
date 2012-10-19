@@ -788,7 +788,7 @@ void main(int argc, char **argv)
     /* get the FIG2DEV_DIR environment variable (if any is set) for the path
        to fig2dev, in case the user wants one not in the normal search path */
     if ((fig2dev_path = getenv("FIG2DEV_DIR"))==NULL)
-	strcpy(fig2dev_cmd, "fig2dev");
+	strcpy(fig2dev_cmd, "xfig_fig2dev");
     else
 	sprintf(fig2dev_cmd,"%s/fig2dev",fig2dev_path);
 
