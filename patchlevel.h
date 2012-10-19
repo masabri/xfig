@@ -15,6 +15,10 @@
  *
  */
 
+#ifndef VERSION
+#  define VERSION "3.2"
+#endif
+
 #ifndef PATCHLEVEL_H
 #define PATCHLEVEL_H
 

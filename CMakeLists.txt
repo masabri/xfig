@@ -33,6 +33,9 @@ if(NOT "${XAW3D_LIB}" MATCHES "NOTFOUND")
 	add_definitions(-DXAW3D)
 	add_definitions(-DXAW3D1_5E)
 	add_definitions(-DXAW_INTERNATIONALIZATION)
+else(NOT "${XAW3D_LIB}" MATCHES "NOTFOUND")
+	find_library(XAW_LIB NAMES Xaw)
+	set(XAW3D_LIB "")
 endif(NOT "${XAW3D_LIB}" MATCHES "NOTFOUND")
 
 find_library(XMU_LIB NAMES Xmu xmu)
@@ -44,6 +47,9 @@ endif(JPEG_LIBRARIES)
 
 find_package(ZLIB)
 find_package(PNG)
+
+# Need fig2dev for output
+#add_subdirectory(fig2dev)
 
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -204,4 +210,5 @@ set(XFIG_SRCS
   )
 
 add_executable(xfig ${XFIG_SRCS})
-target_link_libraries(xfig ${JPEG_LIBRARIES} ${X11_Xpm_LIB} ${PNG_LIBRARIES} ${ZLIB_LIBRARIES} ${X11_Xi_LIB} ${XAW3D_LIB} ${XMU_LIB}  ${X11_Xt_LIB} ${X11_SM_LIB} ${X11_ICE_LIB} ${X11_X11_LIB} ${M_LIBRARY})
+target_link_libraries(xfig ${JPEG_LIBRARIES} ${X11_Xpm_LIB} ${PNG_LIBRARIES}
+	${ZLIB_LIBRARIES} ${X11_Xi_LIB} ${XAW_LIB} ${XAW3D_LIB} ${XMU_LIB}  ${X11_Xt_LIB} ${X11_SM_LIB} ${X11_ICE_LIB} ${X11_X11_LIB} ${M_LIBRARY})
