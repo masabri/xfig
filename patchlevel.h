@@ -17,6 +17,6 @@
 
 #ifndef PATCHLEVEL_H
 #define PATCHLEVEL_H
-
+#define VERSION "xfig-3.2.5c-transfig-3.2.5e"
 #define PATCHLEVEL "5c"
 #endif /* PATCHLEVEL_H */

@@ -17,7 +17,7 @@
 
 /* for the xpm package */
 #ifdef USE_XPM
-#include <xpm.h>
+#include <X11/xpm.h>
 #endif
 
 #define	BLACK_COLOR	0
