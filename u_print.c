@@ -202,22 +202,14 @@ int print_to_file(char *file, char *lang, float mag, int xoff, int yoff, char *b
     char	    tmp_fig_file[PATH_MAX];
     char	   *outfile, *name, *real_lang;
     char	   *suf;
-    int     fd;
 
     /* if file exists, ask if ok */
     if (!ok_to_write(file, "EXPORT"))
 	return (1);
 
-    snprintf(tmp_fig_file, sizeof(tmp_fig_file), "%s/xfig-fig.XXXXXX", TMPDIR);
+    sprintf(tmp_fig_file, "%s/%s%06d", TMPDIR, "xfig-fig", getpid());
     /* write the fig objects to a temporary file */
     warnexist = False;
-
-    if ((fd = mkstemp(tmp_fig_file)) == -1) {
-       file_msg("Can't open temp file %s: %s\n", tmp_fig_file, strerror(errno));
-       return;
-    }
-    close(fd);
-
     init_write_tmpfile();
     if (write_file(tmp_fig_file, False)) {
       end_write_tmpfile();
@@ -264,7 +256,7 @@ int print_to_file(char *file, char *lang, float mag, int xoff, int yoff, char *b
     setlocale(LC_NUMERIC, "C");
     sprintf(prcmd, "%s %s -L %s ", 
 		fig2dev_cmd, appres.international ? appres.fig2dev_localize_option : "",
-		real_lang, mag/100.0);
+		real_lang);
     /* reset to original locale */
     setlocale(LC_NUMERIC, "");
 #else
@@ -390,12 +382,12 @@ int print_to_file(char *file, char *lang, float mag, int xoff, int yoff, char *b
 #ifdef I18N
 	/* set the numeric locale to C so we get decimal points for numbers */
 	setlocale(LC_NUMERIC, "C");
-	sprintf(prcmd, "fig2dev %s -L %s -p %s -m %f %s %s",
+	sprintf(prcmd, "fig2dev %s -L %s -p %s -m %f %s %s %s",
 		appres.international ?  appres.fig2dev_localize_option : "",
 #else
-		sprintf(prcmd, "fig2dev -L %s -p %s -m %f %s %s",
+		sprintf(prcmd, "fig2dev -L %s -p %s -m %f %s %s %s",
 #endif  /* I18N */
-				"pstex_t", tmp_name, mag/100.0, tmp_fig_file, outfile);
+				"pstex_t", tmp_name, mag/100.0, layers, tmp_fig_file, outfile);
 #ifdef I18N
 	/* reset to original locale */
 	setlocale(LC_NUMERIC, "");
@@ -663,18 +655,19 @@ void gen_print_cmd(char *cmd, char *file, char *printer, char *pr_params)
 #if (defined(SYSV) || defined(SVR4)) && !defined(BSDLPR)
 	sprintf(cmd, "lp %s -d%s %s",
 		pr_params,
-		printer, 
+		shell_protect_string(printer), 
 		shell_protect_string(file));
 #else
 	sprintf(cmd, "%s %s %s%s %s", 
 		access("/usr/bin/lp", X_OK)?"lpr":"lp",
 		pr_params,
 		access("/usr/bin/lp", X_OK)?"-P":"-d",
-		printer,
+		shell_protect_string(printer), 
 		shell_protect_string(file));
 #endif /* (defined(SYSV) || defined(SVR4)) && !defined(BSDLPR) */
 	put_msg("Printing on \"%s\" with %s paper size in %s mode ...     ",
-		printer, paper_sizes[appres.papersize].sname,
+		shell_protect_string(printer), 
+		paper_sizes[appres.papersize].sname,
 		appres.landscape ? "LANDSCAPE" : "PORTRAIT");
     }
     app_flush();		/* make sure message gets displayed */

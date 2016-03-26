@@ -109,7 +109,7 @@ read_1_3_objects(FILE *fp, char *buf, F_compound *obj)
 		la = obj->arcs = a;
 	    num_object++;
 	    break;
-	case O_TEXT:
+	case O_TXT:
 	    if ((t = read_1_3_textobject(fp)) == NULL)
 		return (-1);
 	    if (lt)
@@ -250,7 +250,7 @@ read_1_3_compoundobject(FILE *fp)
 	    else
 		la = com->arcs = a;
 	    break;
-	case O_TEXT:
+	case O_TXT:
 	    if ((t = read_1_3_textobject(fp)) == NULL) {
 		free_text(&t);
 		return (NULL);

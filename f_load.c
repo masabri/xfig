@@ -373,5 +373,5 @@ read_fail_message(char *file, int err)
 	/* Format error; relevant error message is already delivered */
 	;
     else
-	file_msg("File \"%s\" is not accessible; %s.", file, strerror(err));
+	file_msg("File \"%s\" is not accessable; %s.", file, strerror(err));
 }

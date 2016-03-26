@@ -77,13 +77,11 @@ read_epsf_pdf(FILE *file, int filetype, F_pic *pic, Boolean pdf_flag)
 
 	/* look for /MediaBox for pdf file */
 	if (pdf_flag) {
-	  char *s;
-	  for(s=buf; (s=strchr(s,'/')); s++) {
-	    if (!strncmp(s, "/MediaBox", 8)) {	/* look for the MediaBox spec */
+	    if (!strncmp(buf, "/MediaBox", 8)) {	/* look for the MediaBox spec */
 		char       *c;
 
-		c = strchr(s, '[');
-		if (c && sscanf(c+1, "%d %d %d %d", &llx, &lly, &urx, &ury) < 4) {
+		c = strchr(buf, '[') + 1;
+		if (c && sscanf(c, "%d %d %d %d", &llx, &lly, &urx, &ury) < 4) {
 		    llx = lly = 0;
 		    urx = paper_sizes[0].width * 72 / PIX_PER_INCH;
 		    ury = paper_sizes[0].height * 72 / PIX_PER_INCH;
@@ -91,9 +89,7 @@ read_epsf_pdf(FILE *file, int filetype, F_pic *pic, Boolean pdf_flag)
 			     appres.INCHES ? "Letter" : "A4");
 		    app_flush();
 		}
-		break;
 	    }
-	  }
 	    /* look for bounding box */
 	} else if (!nested && !strncmp(buf, "%%BoundingBox:", 14)) {
 	    if (!strstr(buf, "(atend)")) {	/* make sure doesn't say (atend) */
@@ -140,7 +136,7 @@ read_epsf_pdf(FILE *file, int filetype, F_pic *pic, Boolean pdf_flag)
     pic->pic_cache->cmap[1].red = pic->pic_cache->cmap[1].green = pic->pic_cache->cmap[1].blue = 255;
     pic->pic_cache->numcols = 0;
 
-    if (bad_bbox = (urx <= llx || ury <= lly)) {
+    if ((bad_bbox = (urx <= llx || ury <= lly))) {
 	file_msg("Bad values in %s",
 		 pdf_flag ? "/MediaBox" : "EPS bounding box");
 	close_picfile(file,filetype);
@@ -310,7 +306,7 @@ bitmap_from_gs(file, filetype, pic, urx, llx, ury, lly, pdf_flag)
 	driver = "pbmraw";
     } else {
 	/* for color, use pcx */
-	driver = "pcx256";
+	driver = "pcx24b";
     }
     /* Canonicalize the eps file filename, needed to "defeat" -dSAFER */
     if (!realpath(tmpfile, psnam)) {
@@ -330,7 +326,7 @@ bitmap_from_gs(file, filetype, pic, urx, llx, ury, lly, pdf_flag)
     gs commands (New method)
 
     W is the width in pixels and H is the height
-    gs -dSAFER -sDEVICE=pbmraw(or pcx256) -gWxH -sOutputFile=/tmp/xfig-pic%%%.pix -q -
+    gs -dSAFER -sDEVICE=pbmraw(or pcx24b) -gWxH -sOutputFile=/tmp/xfig-pic%%%.pix -q -
 
     -llx -lly translate
     % mark dictionary (otherwise fails for tiger.ps (e.g.):
