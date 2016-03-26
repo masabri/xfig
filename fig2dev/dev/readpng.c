@@ -36,9 +36,11 @@ read_png(file,filetype,pic,llx,lly)
     int		    bit_depth, color_type, interlace_type;
     int		    compression_type, filter_type;
     png_bytep	   *row_pointers;
-    char	   *ptr;
+    unsigned char  *ptr;
     int		    num_palette;
     png_colorp	    palette;
+    double          gamma;
+    png_color_16p   file_background;
     png_color_16    png_background;
 
     *llx = *lly = 0;
@@ -78,17 +80,15 @@ read_png(file,filetype,pic,llx,lly)
     png_get_IHDR(png_ptr, info_ptr, &w, &h, &bit_depth, &color_type,
 	&interlace_type, &compression_type, &filter_type);
 
-    png_fixed_point gamma = 0.45;
-    png_get_gAMA_fixed(png_ptr,info_ptr,&gamma);
-    png_set_gamma(png_ptr, 2.2, gamma);
+    if (png_get_gAMA(png_ptr, info_ptr, &gamma))
+	png_set_gamma(png_ptr, 2.2, gamma);
+    else
+	png_set_gamma(png_ptr, 2.2, 0.45);
 
-    if (png_get_valid(png_ptr,info_ptr,PNG_INFO_bKGD)) {
+    if (png_get_bKGD(png_ptr, info_ptr, &file_background))
 	/* set the background to the one supplied */
-    	png_color_16p background;
-	png_get_bKGD(png_ptr,info_ptr,&background);
-	png_set_background(png_ptr, background,
+	png_set_background(png_ptr, file_background,
 		PNG_BACKGROUND_GAMMA_FILE, 1, 1.0);
-    }
     else {
 	/* blend the canvas background using the alpha channel */
 	if (bgspec) {
