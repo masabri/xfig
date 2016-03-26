@@ -109,7 +109,7 @@ int	err;
 	    /* Format error; relevant error message is already delivered */
 	    }
 	else
-	    put_msg("File \"%s\" is not accessable; %s", file, strerror(err));
+	    put_msg("File \"%s\" is not accessible; %s", file, strerror(err));
 }
 
 /**********************************************************

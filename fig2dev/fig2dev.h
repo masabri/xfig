@@ -21,6 +21,7 @@
 #include "patchlevel.h"
 #include <math.h>
 #include <sys/file.h>
+#include <sys/stat.h>
 #include <signal.h>
 #include <string.h>
 #include <pwd.h>

@@ -151,7 +151,7 @@ read_gif(filename,filetype,pic,llx,lly)
 
 		if (c == '!') { 		/* Extension */
 		    if (! ReadOK(file,&c,1))
-			fprintf(stderr,"GIF read error on extention function code\n");
+			fprintf(stderr,"GIF read error on extension function code\n");
 		    (void) DoGIFextension(file, c);
 		    continue;
 		}
