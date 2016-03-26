@@ -9,45 +9,14 @@ project(XFIG)
 
 set(XFIG_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
-if(XFIG_IS_SUBBUILD)
-  set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/CMake")
-else(XFIG_IS_SUBBUILD)
-  set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake;${CMAKE_MODULE_PATH}")
-endif(XFIG_IS_SUBBUILD)
-
-# The location in which to install XFIG executables.
-if(NOT BIN_DIR)
-  set(BIN_DIR bin)
-endif(NOT BIN_DIR)
-
-# The location in which to install XFIG header files.
-if(NOT INCLUDE_DIR)
-  set(INCLUDE_DIR include)
-endif(NOT INCLUDE_DIR)
-
-# The location in which to install XFIG libraries.
-if(NOT LIB_DIR)
-  set(LIB_DIR lib)
-endif(NOT LIB_DIR)
-
-
-if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${XFIG_BINARY_DIR}/${LIB_DIR} CACHE INTERNAL "Single output directory for building all libraries.")
-endif(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-if(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
-  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${XFIG_BINARY_DIR}/${LIB_DIR} CACHE INTERNAL "Single output directory for building all archives.")
-endif(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
-if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${XFIG_BINARY_DIR}/${BIN_DIR} CACHE INTERNAL "Single output directory for building all executables.")
-endif(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
-
+include(${CMAKE_CURRENT_SOURCE_DIR}/CMake/RPath_Setup.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/CMake/Path_Setup.cmake)
 
 if(NOT M_LIBRARY)
   include(CheckLibraryExists)
-  include(ResolveCompilerPaths)
   CHECK_LIBRARY_EXISTS(m cos "" HAVE_M_LIBRARY)
   if(HAVE_M_LIBRARY)
-    RESOLVE_LIBRARIES(M_LIBRARY "-lm")
+    set(M_LIBRARY "m")
   endif(HAVE_M_LIBRARY)
 endif(NOT M_LIBRARY)
 
