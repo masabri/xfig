@@ -351,7 +351,9 @@ popup_query(int query_type, char *message)
  * (use -1 if no line desired)
  */
 
+#ifndef XAW3D1_5E
 #include "SmeCascade.h"
+#endif /* XAW3D1_5E */
 
 #include "d_text.h"
 #include "e_placelib.h"

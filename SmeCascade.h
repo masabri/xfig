@@ -27,7 +27,12 @@
 #else
 #include <X11/Xaw/Sme.h>
 #endif
+
+#ifdef XAW3D1_5E
+#include <X11/Xaw3d/SmeBSB.h>
+#else
 #include "SmeBSB.h"
+#endif
 
 /****************************************************************
  *

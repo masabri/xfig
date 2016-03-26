@@ -41,7 +41,7 @@
 #define REG_NOERROR 0
 #endif
 
-#if defined(__FreeBSD__) && !defined(REG_NOERROR)
+#if (defined(__FreeBSD__) || defined(__DARWIN__)) && !defined(REG_NOERROR)
 #define REG_NOERROR 0
 #endif
 

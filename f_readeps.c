@@ -77,11 +77,13 @@ read_epsf_pdf(FILE *file, int filetype, F_pic *pic, Boolean pdf_flag)
 
 	/* look for /MediaBox for pdf file */
 	if (pdf_flag) {
-	    if (!strncmp(buf, "/MediaBox", 8)) {	/* look for the MediaBox spec */
+	  char *s;
+	  for(s=buf; (s=strchr(s,'/')); s++) {
+	    if (!strncmp(s, "/MediaBox", 8)) {	/* look for the MediaBox spec */
 		char       *c;
 
-		c = strchr(buf, '[') + 1;
-		if (c && sscanf(c, "%d %d %d %d", &llx, &lly, &urx, &ury) < 4) {
+		c = strchr(s, '[');
+		if (c && sscanf(c+1, "%d %d %d %d", &llx, &lly, &urx, &ury) < 4) {
 		    llx = lly = 0;
 		    urx = paper_sizes[0].width * 72 / PIX_PER_INCH;
 		    ury = paper_sizes[0].height * 72 / PIX_PER_INCH;
@@ -89,7 +91,9 @@ read_epsf_pdf(FILE *file, int filetype, F_pic *pic, Boolean pdf_flag)
 			     appres.INCHES ? "Letter" : "A4");
 		    app_flush();
 		}
+		break;
 	    }
+	  }
 	    /* look for bounding box */
 	} else if (!nested && !strncmp(buf, "%%BoundingBox:", 14)) {
 	    if (!strstr(buf, "(atend)")) {	/* make sure doesn't say (atend) */

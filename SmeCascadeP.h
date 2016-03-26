@@ -32,8 +32,12 @@
 #include <X11/Xaw/SmeP.h>
 #endif
 
+#ifdef XAW3D1_5E
+#include <X11/Xaw3d/SmeBSBP.h>
+#else
 #include "SmeBSBP.h"
 #include "SmeCascade.h"
+#endif
 
 /************************************************************
  *

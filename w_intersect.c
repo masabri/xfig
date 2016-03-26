@@ -33,6 +33,11 @@
 #define ISET_P1 (1 << 0)
 #define ISET_P2 (1 << 1)
 
+#if defined (__SVR4) && defined (__sun)
+#undef _Complex_I
+#define _Complex_I (__extension__ 1.0fi)
+#endif
+
 intersect_state_e intersect_state = INTERSECT_INITIAL;
 
 static INLINE Boolean
